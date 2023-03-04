@@ -7,8 +7,20 @@ require('dotenv').config()
 
 const prisma = new PrismaClient()
 
-const escapeTelegramMarkdown = (text: string) => {
-  return text.replace(/([-_*\[\]()~`>#+=|{}.!])/g, '\\$1')
+const escapeSpecialChars = (str: string) => {
+  const specialChars = '_*[]()~`>#-={}+|.!'
+  let escapedStr = ''
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charAt(i)
+    if (specialChars.includes(char)) {
+      escapedStr += '\\' + char
+    } else {
+      escapedStr += char
+    }
+  }
+
+  return escapedStr
 }
 
 const makeCompletion = async () => {
@@ -66,7 +78,7 @@ const makeCompletion = async () => {
 
     bot.sendMessage(
       msg.chat.id,
-      escapeTelegramMarkdown(
+      escapeSpecialChars(
         telegramifyMarkdown(completion.data.choices[0].message.content)
       ),
       { parse_mode: 'MarkdownV2' }
