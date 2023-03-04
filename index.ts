@@ -63,13 +63,9 @@ const makeCompletion = async () => {
         },
       ],
     })
-    await bot.setMyCommands([
-      { command: '/clear', description: 'Clear all messages' },
-    ])
 
-    const chatId = msg.chat.id
     bot.sendMessage(
-      chatId,
+      msg.chat.id,
       telegramifyMarkdown(
         escapeTelegramMarkdown(completion.data.choices[0].message.content)
       ),

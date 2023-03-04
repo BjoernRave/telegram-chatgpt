@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev": "ts-node-dev index.ts",
+    "build": "tsc",
     "start": "pm2 start dist/index.js"
   },
   "dependencies": {
