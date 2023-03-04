@@ -66,8 +66,8 @@ const makeCompletion = async () => {
 
     bot.sendMessage(
       msg.chat.id,
-      telegramifyMarkdown(
-        escapeTelegramMarkdown(completion.data.choices[0].message.content)
+      escapeTelegramMarkdown(
+        telegramifyMarkdown(completion.data.choices[0].message.content)
       ),
       { parse_mode: 'MarkdownV2' }
     )
