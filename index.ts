@@ -31,6 +31,33 @@ const makeCompletion = async () => {
 
   const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
 
+  bot.onText(/\/password/, async (msg) => {
+    const providedPassword = msg.text.replace('/password ', '')
+
+    if (process.env.TELEGRAM_PASSWORD !== providedPassword) {
+      return
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        telegramId: String(msg.from.id),
+      },
+    })
+
+    if (user) {
+      bot.sendMessage(msg.chat.id, 'You are already registered')
+      return
+    }
+
+    await prisma.user.create({
+      data: {
+        telegramId: String(msg.from.id),
+      },
+    })
+
+    bot.sendMessage(msg.chat.id, 'You are now registered')
+  })
+
   bot.onText(/\/clear/, async (msg) => {
     await prisma.message.updateMany({
       where: {
@@ -45,7 +72,17 @@ const makeCompletion = async () => {
   })
 
   bot.on('message', async (msg) => {
-    if (msg.text === '/clear') return
+    if (['/clear', '/password'].includes(msg.text)) return
+
+    const user = await prisma.user.findUnique({
+      where: {
+        telegramId: String(msg.from.id),
+      },
+    })
+
+    if (!user) {
+      return
+    }
 
     var dt = new Date()
 
@@ -86,6 +123,11 @@ const makeCompletion = async () => {
       data: {
         text: msg.text,
         role: 'user',
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
       },
     })
 
@@ -93,6 +135,11 @@ const makeCompletion = async () => {
       data: {
         text: completion.data.choices[0].message.content,
         role: 'assistant',
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
       },
     })
 

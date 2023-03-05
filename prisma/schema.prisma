@@ -16,4 +16,13 @@ model Message {
   text      String
   role      String
   isActive  Boolean  @default(true)
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  telegramId String    @unique
+  messages   Message[]
 }
