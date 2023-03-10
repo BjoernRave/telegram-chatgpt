@@ -7,22 +7,6 @@ require('dotenv').config()
 
 const prisma = new PrismaClient()
 
-const escapeSpecialChars = (str: string) => {
-  const specialChars = '_*[]()~`>#-={}+|.!'
-  let escapedStr = ''
-
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charAt(i)
-    if (specialChars.includes(char)) {
-      escapedStr += '\\' + char
-    } else {
-      escapedStr += char
-    }
-  }
-
-  return escapedStr
-}
-
 const makeCompletion = async () => {
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_KEY,
