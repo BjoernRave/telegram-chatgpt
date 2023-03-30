@@ -46,6 +46,7 @@ const makeCompletion = async () => {
     await prisma.message.updateMany({
       where: {
         isActive: true,
+        userId: msg.from.id,
       },
       data: {
         isActive: false,
