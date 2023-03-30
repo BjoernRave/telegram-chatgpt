@@ -77,6 +77,7 @@ const makeCompletion = async () => {
     const previousMessages = await prisma.message.findMany({
       where: {
         isActive: true,
+        userId: user.id,
       },
     })
 
