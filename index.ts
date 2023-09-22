@@ -1,18 +1,18 @@
-import { Configuration, OpenAIApi } from 'openai'
+import OpenAI from 'openai'
+
+import { PrismaClient } from '@prisma/client'
 import TelegramBot from 'node-telegram-bot-api'
 import telegramifyMarkdown from 'telegramify-markdown'
-import { PrismaClient } from '@prisma/client'
 
 require('dotenv').config()
 
 const prisma = new PrismaClient()
 
-const makeCompletion = async () => {
-  const configuration = new Configuration({
-    apiKey: process.env.OPENAI_KEY,
-  })
-  const openai = new OpenAIApi(configuration)
+const openAI = new OpenAI({
+  apiKey: process.env.OPENAI_KEY,
+})
 
+const makeCompletion = async () => {
   const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
 
   bot.onText(/\/password/, async (msg) => {
@@ -81,14 +81,18 @@ const makeCompletion = async () => {
       },
     })
 
-    const completion = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
+    const previousMessagesCapped = previousMessages.slice(
+      Math.max(previousMessages.length - 10, 0)
+    )
+
+    const completion = await openAI.chat.completions.create({
+      model: 'gpt-4',
       messages: [
         {
           content: `You are ChatGPT, a large language model trained to assist me. Answer as concisely and helpful as possible. Current date: ${dateString}`,
           role: 'system',
         },
-        ...previousMessages.map((message) => ({
+        ...previousMessagesCapped.map((message) => ({
           content: message.text,
           role: message.role as any,
         })),
@@ -101,7 +105,7 @@ const makeCompletion = async () => {
 
     bot.sendMessage(
       msg.chat.id,
-      telegramifyMarkdown(completion.data.choices[0].message.content),
+      telegramifyMarkdown(completion.choices[0].message.content),
       { parse_mode: 'MarkdownV2' }
     )
 
@@ -119,7 +123,7 @@ const makeCompletion = async () => {
 
     const botMessagePromise = prisma.message.create({
       data: {
-        text: completion.data.choices[0].message.content,
+        text: completion.choices[0].message.content,
         role: 'assistant',
         user: {
           connect: {
