@@ -88,10 +88,6 @@ const makeCompletion = async () => {
     const completion = await openAI.chat.completions.create({
       model: 'gpt-4',
       messages: [
-        {
-          content: `You are GPT-4, a large language model trained to assist me. Answer as concisely and helpful as possible. Current date: ${dateString}`,
-          role: 'system',
-        },
         ...previousMessagesCapped.map((message) => ({
           content: message.text,
           role: message.role as any,
