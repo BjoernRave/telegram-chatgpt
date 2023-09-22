@@ -89,7 +89,7 @@ const makeCompletion = async () => {
       model: 'gpt-4',
       messages: [
         {
-          content: `You are ChatGPT, a large language model trained to assist me. Answer as concisely and helpful as possible. Current date: ${dateString}`,
+          content: `You are GPT-4, a large language model trained to assist me. Answer as concisely and helpful as possible. Current date: ${dateString}`,
           role: 'system',
         },
         ...previousMessagesCapped.map((message) => ({
